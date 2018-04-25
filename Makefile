@@ -1,7 +1,7 @@
-SUBDIRS := $(wildcard */.)
+all:
+	$(MAKE) -C scull_buffer
+	$(MAKE) -C producer
+	$(MAKE) -C consumer
 
-all: $(SUBDIRS)
-$(SUBDIRS):
-	$(MAKE) -C $@
-
-.PHONY: all $(SUBDIRS)
+clean:
+	rm -rf scull_buffer/*.o scull_buffer/*~ core .depend scull_buffer/.*.cmd scull_buffer/*.ko scull_buffer/*.mod.c scull_buffer/.tmp_versions producer/producer consumer/consumer
