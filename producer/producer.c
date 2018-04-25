@@ -26,7 +26,7 @@ int main(int argc, char * argv[]) {
 	char buf[BUFF_SIZE];
 	int scull;
 
-	scull = open("/dev/scullbuffer0", O_WRONLY);
+	scull = open("/dev/scull_buffer", O_WRONLY);
 	if (scull == -1) {
 		perror("PRODUCER: Open failed: ");
 	}
