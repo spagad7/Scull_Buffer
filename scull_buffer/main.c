@@ -324,11 +324,11 @@ int scull_init(void)
     if(scull_major)
     {
         dev_num = MKDEV(scull_major, scull_minor);
-        result = register_chrdev_region(dev_num, scull_nr_devs, "scull_buffer");
+        result = register_chrdev_region(dev_num, scull_nr_devs, "scull");
     }
     else
     {
-        result = alloc_chrdev_region(&dev_num, scull_minor, scull_nr_devs, "scull_buffer");
+        result = alloc_chrdev_region(&dev_num, scull_minor, scull_nr_devs, "scull");
         scull_major = MAJOR(dev_num);
     }
     if(result < 0)

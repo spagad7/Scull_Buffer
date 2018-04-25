@@ -21,7 +21,7 @@ int main(int argc, char * argv[]) {
 	int total_num_item = atoi(argv[1]);
 	char *name = argv[2];
 	int scull;
-	scull = open("/dev/scull_buffer", O_RDONLY);
+	scull = open("/dev/scull", O_RDONLY);
 	if (scull == -1) {
 		perror("Consumer: Open failed: ");
 		exit (1);
