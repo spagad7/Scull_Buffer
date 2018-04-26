@@ -59,11 +59,11 @@ int main(int argc, char * argv[])
 				perror("Producer failed to write: ");
 				break;
 			case 0:
-				fprintf(stderr, RED "Buffer full, no consumers available\n" RESET);
+				//fprintf(stderr, RED "Buffer full, no consumers available\n" RESET);
 				flag = true;
 				break;
 			default:
-				printf(BLU "Producer %s: wrote: %s\n" RESET, color, buf);
+				//printf(BLU "Producer %s: wrote: %s\n" RESET, color, buf);
 				fprintf (fp, "Producer %s: wrote: %s; size: %d bytes\n", color, buf, (int)strlen(buf));
 				break;
 		}
@@ -71,7 +71,7 @@ int main(int argc, char * argv[])
 			break;
 	}
 
-	printf(GRN "Producer %s: total number of items produced: %d\n" RESET, color, i);
+	//printf(GRN "Producer %s: total number of items produced: %d\n" RESET, color, i);
 	fprintf (fp, "Producer %s: total number of items produced: %d\n", color, i);
 	fclose(fp);
 

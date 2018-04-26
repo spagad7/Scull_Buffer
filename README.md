@@ -22,3 +22,5 @@ Navigate to tests\test[1, 2, 3, 4, 5] folder and run the shell script. For examp
 and run
 
  `sudo ./test1.sh`
+
+ Each producer and consumer will create their own file in their corresponding test directories.

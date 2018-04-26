@@ -54,11 +54,11 @@ int main(int argc, char * argv[])
 				fprintf(stderr, RED "Consumer %s: failed to read\n" RESET, name);
 				break;
 			case 0:
-				fprintf(stderr, RED "Consumer %s: buffer empty, no producers available\n" RESET, name);
+				//fprintf(stderr, RED "Consumer %s: buffer empty, no producers available\n" RESET, name);
 				flag = true;
 				break;
 			default:
-				printf(BLU "Consumer %s: read: %s\n" RESET, name, buf);
+				//printf(BLU "Consumer %s: read: %s\n" RESET, name, buf);
 				fprintf (fp, "Consumer %s: read: %s; size: %d bytes\n", name, buf, result);
 				break;
 		}
@@ -67,7 +67,7 @@ int main(int argc, char * argv[])
 			break;
 	}
 
-	printf(GRN "Consumer %s: total number of items read: %d\n" RESET, name, i);
+	//printf(GRN "Consumer %s: total number of items read: %d\n" RESET, name, i);
 	fprintf (fp, "Consumer %s: total number of items read: %d\n", name, i);
 	fclose(fp);
 
