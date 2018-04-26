@@ -97,7 +97,7 @@ int scull_release(struct inode *inode, struct file *filp)
 	{
 		dev->n_consumers--;
 		// check if n_consumer==0
-		if(dev->n_consumer==0)
+		if(dev->n_consumers==0)
 			wake_up_interruptible(&dev->outq);
 	}
 
@@ -105,7 +105,7 @@ int scull_release(struct inode *inode, struct file *filp)
 	{
 		dev->n_producers--;
 		// check if n_producer==0
-		if(dev->n_producer==0)
+		if(dev->n_producers==0)
 			wake_up_interruptible(&dev->inq);
 	}
 
