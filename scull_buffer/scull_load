@@ -3,6 +3,7 @@
 module="scull"
 device="scull"
 mode="664"
+cur_dir=$(pwd)
 
 # Group: since distributions do it differently, look for wheel or use staff
 if grep -q '^staff:' /etc/group; then
@@ -13,7 +14,7 @@ fi
 
 # invoke insmod with all arguments we got
 # and use a pathname, as insmod doesn't look in . by default
-/sbin/insmod ./$module.ko $* || exit 1
+/sbin/insmod $cur_dir/$module.ko $* || exit 1
 
 # retrieve major number
 major=$(awk "\$2==\"$module\" {print \$1}" /proc/devices)

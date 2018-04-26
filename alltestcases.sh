@@ -1,6 +1,6 @@
 #!/bin/sh
 
-module="scull_buffer"
+module="scull"
 
 if [ "$(id -u)" != "0" ]; then
 	echo "Please execute the script with super user permissions."
