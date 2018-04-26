@@ -29,7 +29,7 @@ int main(int argc, char * argv[])
 	name = argv[2];
 	dev = open("/dev/scull", O_RDONLY);
 	if (dev == -1) {
-		fprintf(stderr, RED "Consumer: %s, failed to open scull_buffer\n" RESET, name);
+		fprintf(stderr, RED "Consumer %s: failed to open scull_buffer\n" RESET, name);
 		return -1;
 	}
 	sleep(2);
@@ -40,14 +40,14 @@ int main(int argc, char * argv[])
 		switch (result)
 		{
 			case -1:
-				fprintf(stderr, RED "Consumer: %s, failed to read\n" RESET, name);
+				fprintf(stderr, RED "Consumer %s: failed to read\n" RESET, name);
 				break;
 			case 0:
-				fprintf(stderr, RED "Consumer: %s, buffer empty, no producers available\n" RESET, name);
+				fprintf(stderr, RED "Consumer %s: buffer empty, no producers available\n" RESET, name);
 				flag = true;
 				break;
 			default:
-				printf(BLU "Consumer: %s, read: %s\n" RESET, name, buf);
+				printf(BLU "Consumer %s: read: %s\n" RESET, name, buf);
 				break;
 		}
 
@@ -56,7 +56,7 @@ int main(int argc, char * argv[])
 		sleep(1);
 	}
 
-	printf(GRN "Consumer: %s, total number of items read: %d\n" RESET, name, i);
+	printf(GRN "Consumer %s: total number of items read: %d\n" RESET, name, i);
 
     // close the scull_buffer
     close(dev);
