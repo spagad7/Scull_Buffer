@@ -74,7 +74,6 @@ int scull_open(struct inode *inode, struct file *filp)
 	dev->buffersize = size;
 	dev->end = dev->buffer + dev->buffersize;
 
-
 	if (filp->f_mode & FMODE_READ)
 		dev->n_consumers++;
 	if (filp->f_mode & FMODE_WRITE)
@@ -95,9 +94,21 @@ int scull_release(struct inode *inode, struct file *filp)
     // manage number of producers and consumers
 	down(&dev->sem);
 	if (filp->f_mode & FMODE_READ)
+	{
 		dev->n_consumers--;
+		// check if n_consumer==0
+		if(dev->n_consumer==0)
+			wake_up_interruptible(&dev->outq);
+	}
+
 	if (filp->f_mode & FMODE_WRITE)
+	{
 		dev->n_producers--;
+		// check if n_producer==0
+		if(dev->n_producer==0)
+			wake_up_interruptible(&dev->inq);
+	}
+
     // no producer or consumer, clear buffer
 	if (dev->n_consumers + dev->n_producers == 0) {
 		kfree(dev->buffer);
@@ -115,10 +126,8 @@ ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_
 {
 	struct scull_buffer *dev = filp->private_data;
 
-	PDEBUG("Consumer: \"%s\": waiting to get lock on sem\n", current->comm);
 	if (down_interruptible(&dev->sem))
 		return -ERESTARTSYS;
-	PDEBUG("Consumer: \"%s\": got lock on sem\n", current->comm);
 
     // nothing to read
 	while (dev->items_available == 0) {
