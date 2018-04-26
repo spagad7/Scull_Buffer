@@ -1,0 +1,1 @@
+cmd_/home/shishir/Coursework/Operating_System/Assignments/Assignment_7/Scull_Buffer/scull_buffer/scull.o := ld -m elf_x86_64   -r -o /home/shishir/Coursework/Operating_System/Assignments/Assignment_7/Scull_Buffer/scull_buffer/scull.o /home/shishir/Coursework/Operating_System/Assignments/Assignment_7/Scull_Buffer/scull_buffer/main.o 

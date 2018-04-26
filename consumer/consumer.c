@@ -53,7 +53,7 @@ int main(int argc, char * argv[])
 
         if(flag)
 			break;
-		//sleep(2);
+		sleep(1);
 	}
 
 	printf(GRN "Consumer: %s, total number of items read: %d\n" RESET, name, i);

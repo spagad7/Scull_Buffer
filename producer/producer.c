@@ -58,7 +58,7 @@ int main(int argc, char * argv[])
 		}
         if(flag)
 			break;
-		//sleep(2);
+		sleep(1);
 	}
 
 	printf(GRN "Producer: %s, : total number of items produced: %d\n" RESET, color, i);
