@@ -58,11 +58,10 @@ int main(int argc, char * argv[])
 		}
         if(flag)
 			break;
-		//sleep(1);
 	}
 
 	printf(GRN "Producer: %s, : total number of items produced: %d\n" RESET, color, i);
-
+	sleep(2);
     // close the scull_buffer
 	close(dev);
 	exit (0);

@@ -99,9 +99,7 @@ int scull_release(struct inode *inode, struct file *filp)
 	if (filp->f_mode & FMODE_WRITE)
 		dev->n_producers--;
     // no producer or consumer, clear buffer
-	if (dev->n_consumers + dev->n_producers == 0)
-	{
-		PDEBUG("n_consumer=0 and n_consumer=0, clearning buffer\n");
+	if (dev->n_consumers + dev->n_producers == 0) {
 		kfree(dev->buffer);
 		dev->buffer = NULL; /* the other fields are not checked on open */
 	}
@@ -192,21 +190,19 @@ static int scull_getwritespace(struct scull_buffer *dev, struct file *filp)
         // DEFINE_WAIT includes declaration and init of wait_queue
 		DEFINE_WAIT(wait);
 
-		if(dev->n_consumers == 0)
-        {
-            PDEBUG("Producer: \"%s\" buffer full, no consumers\n", current->comm);
-            return BUFFER_FULL_NO_CONSUMER;
-        }
-        else
-            PDEBUG("Producer: \"%s\" going to sleep\n", current->comm);
-
         // release sempahore before going to sleep
 		up(&dev->sem);
 
         // don't wait if non-blocking or n_consumers = 0
 		if(filp->f_flags & O_NONBLOCK)
 			return -EAGAIN;
-
+        if(dev->n_consumers == 0)
+        {
+            PDEBUG("Producer: \"%s\" buffer full, no consumers\n", current->comm);
+            return BUFFER_FULL_NO_CONSUMER;
+        }
+        else
+            PDEBUG("Producer: \"%s\" going to sleep\n", current->comm);
 
         // TASK_INTERRUPTIBLE sets process state to sleeping
 		prepare_to_wait(&dev->outq, &wait, TASK_INTERRUPTIBLE);

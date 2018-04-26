@@ -32,7 +32,7 @@ int main(int argc, char * argv[])
 		fprintf(stderr, RED "Consumer %s: failed to open scull_buffer\n" RESET, name);
 		return -1;
 	}
-	sleep(2);
+	sleep(1);
 
 	for(; i<n_items; i++)
 	{
