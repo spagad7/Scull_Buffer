@@ -8,15 +8,15 @@ if [ "$(id -u)" != "0" ]; then
 fi
 
 echo -e "\nLoading scull_buffer module\n"
-chmod 755 ./scullbuffer/*
+chmod 755 ./scull_buffer/*
 
 # if scull_buffer is already loaded unload it using scull_unload script
 if lsmod | grep "$module" &> /dev/null ; then
-    sh ./scullbuffer/scull_unload
+    sh ./scull_buffer/scull_unload
 fi
 
 # load scull_buffer module
-sh ./scullbuffer/scull_load
+sh ./scull_buffer/scull_load
 chmod 777 /dev/scull*
 
 echo -e "\nExecuting test cases\n"
