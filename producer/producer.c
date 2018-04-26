@@ -39,15 +39,15 @@ int main(int argc, char * argv[]) {
 		sprintf(buf, "%s %d",base_color,iters+1);
 		written =  write(scull, buf, BUFF_SIZE);
 		switch ( written ) {
-			case 0:
-				perror("Writing by producer failed: ");
-				break;
 			case -1:
-				fprintf(stderr, RED "Buffer is full and no consumers available\n" RESET);
+				perror("Producer write failed: ");
+				break;
+			case 0:
+				fprintf(stderr, RED "Buffer full, no consumers available\n" RESET);
 				done = 1;
 				break;
 			default:
-				printf(BLU "Item written by producer: %s\n" RESET, buf);
+				printf(BLU "Producer wrote: %s\n" RESET, buf);
 				;
 		}
 

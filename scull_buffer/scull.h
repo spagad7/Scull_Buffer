@@ -41,7 +41,7 @@
 #define SCULL_SZ_ITEM 32
 #endif
 
-#define BUFFER_FULL_NO_READER 10
+#define BUFFER_FULL_NO_CONSUMER 10
 
 /*
  * Split minors in two parts
@@ -55,7 +55,7 @@ struct scull_buffer {
         char *buffer, *end;                // begin of buf, end of buf
         int buffersize;                    // used in pointer arithmetic
         char *rp, *wp;                     // where to read, where to write
-        int nreaders, nwriters;            // number of openings for r/w
+        int n_consumers, n_producers;            // number of openings for r/w
         struct semaphore sem;              // mutual exclusion semaphore
         struct cdev cdev;                  // Char device structure
 		int items_available;

@@ -74,9 +74,9 @@ int scull_open(struct inode *inode, struct file *filp)
 
 
 	if (filp->f_mode & FMODE_READ)
-		dev->nreaders++;
+		dev->n_consumers++;
 	if (filp->f_mode & FMODE_WRITE)
-		dev->nwriters++;
+		dev->n_producers++;
 	up(&dev->sem);
 
 	return nonseekable_open(inode, filp);
@@ -90,14 +90,14 @@ int scull_release(struct inode *inode, struct file *filp)
 {
 	struct scull_buffer *dev = filp->private_data;
 
-    // manage number of reader and writers
+    // manage number of producers and consumers
 	down(&dev->sem);
 	if (filp->f_mode & FMODE_READ)
-		dev->nreaders--;
+		dev->n_consumers--;
 	if (filp->f_mode & FMODE_WRITE)
-		dev->nwriters--;
-    // no reader or writer, clear buffer
-	if (dev->nreaders + dev->nwriters == 0) {
+		dev->n_producers--;
+    // no producer or consumer, clear buffer
+	if (dev->n_consumers + dev->n_producers == 0) {
 		kfree(dev->buffer);
 		dev->buffer = NULL; /* the other fields are not checked on open */
 	}
@@ -107,7 +107,7 @@ int scull_release(struct inode *inode, struct file *filp)
 
 
 /*
- * scull_read(): used for consumer to read data from the scull_buffer
+ * scull_read(): used by consumer to read data from the scull_buffer
  */
 ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_pos)
 {
@@ -121,9 +121,12 @@ ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_
         // release lock
         up(&dev->sem);
 
-        // handle O_NONBLOCK
-		if (filp->f_flags & O_NONBLOCK)
+        // don't wait if non-blocking or n_producers = 0
+		if(filp->f_flags & O_NONBLOCK)
 			return -EAGAIN;
+		if(dev->n_producers == 0)
+			// Buffer empty, no producers
+			return 0;
 
 		PDEBUG("Consumer: \"%s\": nothing to read, going to sleep\n", current->comm);
         // wait till there is some data available
@@ -151,7 +154,7 @@ ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_
     dev->items_available--;
 	up (&dev->sem);
 
-	// wake up any waiting writers
+	// wake up any waiting producers
 	wake_up_interruptible(&dev->outq);
 	PDEBUG("Consumer: \"%s\" read \"%s\" of size: %d bytes from the scull buffer\n",
             current->comm, buf, scull_sz_item);
@@ -186,13 +189,13 @@ static int scull_getwritespace(struct scull_buffer *dev, struct file *filp)
         // release sempahore before going to sleep
 		up(&dev->sem);
 
-        // don't wait if non-blocking or nreaders = 0
+        // don't wait if non-blocking or n_consumers = 0
 		if(filp->f_flags & O_NONBLOCK)
 			return -EAGAIN;
-        if(dev->nreaders == 0)
+        if(dev->n_consumers == 0)
         {
-            PDEBUG("Producer: \"%s\" buffer full, no readers\n", current->comm);
-            return BUFFER_FULL_NO_READER;
+            PDEBUG("Producer: \"%s\" buffer full, no consumers\n", current->comm);
+            return BUFFER_FULL_NO_CONSUMER;
         }
         else
             PDEBUG("Producer: \"%s\" going to sleep\n", current->comm);
@@ -206,8 +209,8 @@ static int scull_getwritespace(struct scull_buffer *dev, struct file *filp)
 		finish_wait(&dev->outq, &wait);
 
         // after wake up, check if the condition for wait is true
-        if(dev->nreaders == 0)
-            return BUFFER_FULL_NO_READER;
+        if(dev->n_consumers == 0)
+            return BUFFER_FULL_NO_CONSUMER;
 
 		if (signal_pending(current))
             // signal fs layer to handle it
@@ -232,8 +235,8 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, lof
     result = scull_getwritespace(dev, filp);
     if(result)
     {
-        if (result == BUFFER_FULL_NO_READER)
-            return -1;
+        if (result == BUFFER_FULL_NO_CONSUMER)
+            return 0;
         else
     		return result;
     }
@@ -251,7 +254,7 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, lof
 	dev->items_available++;
     up(&dev->sem);
 
-	// wake up any reader
+	// wake up any consumer
 	wake_up_interruptible(&dev->inq);
 
     PDEBUG("Producer: \"%s\" wrote \"%s\" of size: %d bytes into the scull buffer\n",
@@ -333,7 +336,7 @@ int scull_init(void)
     }
     if(result < 0)
     {
-        printk(KERN_NOTICE, "Unable to allocate device number for scull_buffer, error %d\n", result);
+        printk(KERN_NOTICE "Unable to allocate device number for scull_buffer, error %d\n", result);
         return 0;
     }
 
