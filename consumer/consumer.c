@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include <string.h>
 
 #define BLU   "\x1B[34m"
 #define RED   "\x1B[31m"
@@ -25,8 +26,18 @@ int main(int argc, char * argv[])
 		return -1;
 	}
 
+	// read n_items and name
 	n_items = atoi(argv[1]);
 	name = argv[2];
+
+	// open log file
+	char *filename = malloc(strlen("consumer_") + strlen(name) + strlen(".txt") + 1);
+	strcpy(filename, "consumer_");
+	strcat(filename, name);
+	strcat(filename, ".txt");
+	FILE *fp;
+	fp = fopen(filename, "w");
+
 	dev = open("/dev/scull", O_RDONLY);
 	if (dev == -1) {
 		fprintf(stderr, RED "Consumer %s: failed to open scull_buffer\n" RESET, name);
@@ -48,15 +59,17 @@ int main(int argc, char * argv[])
 				break;
 			default:
 				printf(BLU "Consumer %s: read: %s\n" RESET, name, buf);
+				fprintf (fp, "Consumer %s: read: %s; size: %d bytes\n", name, buf, result);
 				break;
 		}
 
         if(flag)
 			break;
-		//sleep(1);
 	}
 
 	printf(GRN "Consumer %s: total number of items read: %d\n" RESET, name, i);
+	fprintf (fp, "Consumer %s: total number of items read: %d\n", name, i);
+	fclose(fp);
 
     // close the scull_buffer
     close(dev);

@@ -31,6 +31,14 @@ int main(int argc, char * argv[])
 	// get n_items and color
 	n_items = atoi(argv[1]);
 	color = argv[2];
+	// open log file
+	char *filename = malloc(strlen("producer_") + strlen(color) + strlen(".txt") + 1);
+	strcpy(filename, "producer_");
+	strcat(filename, color);
+	strcat(filename, ".txt");
+	FILE *fp;
+	fp = fopen(filename, "w");
+
 	// open scull_buffer
 	dev = open("/dev/scull", O_WRONLY);
 	if (dev == -1)
@@ -55,14 +63,18 @@ int main(int argc, char * argv[])
 				flag = true;
 				break;
 			default:
-				printf(BLU "Producer: %s wrote: %s\n" RESET, color, buf);
+				printf(BLU "Producer %s: wrote: %s\n" RESET, color, buf);
+				fprintf (fp, "Producer %s: wrote: %s; size: %d bytes\n", color, buf, (int)strlen(buf));
 				break;
 		}
         if(flag)
 			break;
 	}
 
-	printf(GRN "Producer: %s, : total number of items produced: %d\n" RESET, color, i);
+	printf(GRN "Producer %s: total number of items produced: %d\n" RESET, color, i);
+	fprintf (fp, "Producer %s: total number of items produced: %d\n", color, i);
+	fclose(fp);
+
     // close the scull_buffer
 	close(dev);
 	exit (0);
