@@ -67,7 +67,7 @@ int main(int argc, char * argv[])
 			break;
 	}
 
-	//printf(GRN "Consumer %s: total number of items read: %d\n" RESET, name, i);
+	printf(GRN "Consumer %s: total number of items read: %d\n" RESET, name, i);
 	fprintf (fp, "Consumer %s: total number of items read: %d\n", name, i);
 	fclose(fp);
 

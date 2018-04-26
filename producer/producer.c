@@ -71,7 +71,7 @@ int main(int argc, char * argv[])
 			break;
 	}
 
-	//printf(GRN "Producer %s: total number of items produced: %d\n" RESET, color, i);
+	printf(GRN "Producer %s: total number of items produced: %d\n" RESET, color, i);
 	fprintf (fp, "Producer %s: total number of items produced: %d\n", color, i);
 	fclose(fp);
 
