@@ -5,60 +5,65 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdbool.h>
 
-#define BUFF_SIZE 32
+#define BUFFER_SIZE 32
 
 #define BLU   "\x1B[34m"
 #define RED   "\x1B[31m"
 #define GRN   "\x1B[32m"
 #define RESET "\x1B[0m"
 
-int main(int argc, char * argv[]) {
+int main(int argc, char * argv[])
+{
+	int result, dev, n_items, i=0;
+	bool flag = false;
+	char *color;
+	char buf[BUFFER_SIZE];
 
-	if( argc != 3 ){
-		printf(RED "usage: producer number-of-items color\n" RESET);
-		exit (1);
+	// if incorrect number of arguments are passed, terminate
+	if( argc != 3 )
+	{
+		printf(RED "Usage: producer num_items color\n" RESET);
+		exit(1);
 	}
 
-	int total_num_item = atoi(argv[1]);
-	char *base_color = argv[2];
-
-	char buf[BUFF_SIZE];
-	int scull;
-
-	scull = open("/dev/scull", O_WRONLY);
-	if (scull == -1) {
-		perror("PRODUCER: Open failed: ");
+	// get n_items and color
+	n_items = atoi(argv[1]);
+	color = argv[2];
+	// open scull_buffer
+	dev = open("/dev/scull", O_WRONLY);
+	if (dev == -1)
+	{
+		fprintf(stderr, RED "Producer: %s, failed to open scull_buffer\n" RESET, color);
+		return -1;
 	}
 
-	int iters = 0;
-	int done = 0;
-	int written;
-	for(; iters<total_num_item; iters++) {
+	for(; i<n_items; i++) {
 		memset(buf, 0, sizeof(buf));
-		sprintf(buf, "%s %d",base_color,iters+1);
-		written =  write(scull, buf, BUFF_SIZE);
-		switch ( written ) {
+		sprintf(buf, "%s %d",color,i+1);
+		result =  write(dev, buf, BUFFER_SIZE);
+		switch (result)
+		{
 			case -1:
-				perror("Producer write failed: ");
+				perror("Producer failed to write: ");
 				break;
 			case 0:
 				fprintf(stderr, RED "Buffer full, no consumers available\n" RESET);
-				done = 1;
+				flag = true;
 				break;
 			default:
-				printf(BLU "Producer wrote: %s\n" RESET, buf);
-				;
+				printf(BLU "Producer: %s wrote: %s\n" RESET, color, buf);
+				break;
 		}
-
-        if (done)
+        if(flag)
 			break;
-		sleep(2);
+		//sleep(2);
 	}
 
-	printf(GRN "Total number of Items produced by producer %s : %d\n" RESET, base_color, iters);
+	printf(GRN "Producer: %s, : total number of items produced: %d\n" RESET, color, i);
 
-    // close the scullbuffer
-	close(scull);
+    // close the scull_buffer
+	close(dev);
 	exit (0);
 }

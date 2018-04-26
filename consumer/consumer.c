@@ -4,59 +4,61 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <stdbool.h>
 
 #define BLU   "\x1B[34m"
 #define RED   "\x1B[31m"
 #define GRN   "\x1B[32m"
 #define RESET "\x1B[0m"
+#define BUFFER_SIZE 32
 
-int main(int argc, char * argv[]) {
+int main(int argc, char * argv[])
+{
+	int n_items, dev, result, i=0;
+	bool flag = false;
+	char *name;
+	char buf[BUFFER_SIZE];
 
+	// if incorrect number of arguments are passed, terminate
 	if( argc != 3 ){
-		printf(RED "usage: consumer number-of-items name\n" RESET);
-		exit (1);
+		printf(RED "Usage: consumer num_items name\n" RESET);
+		return -1;
 	}
 
-
-	int total_num_item = atoi(argv[1]);
-	char *name = argv[2];
-	int scull;
-	scull = open("/dev/scull", O_RDONLY);
-	if (scull == -1) {
-		perror("Consumer: Open failed: ");
-		exit (1);
+	n_items = atoi(argv[1]);
+	name = argv[2];
+	dev = open("/dev/scull", O_RDONLY);
+	if (dev == -1) {
+		fprintf(stderr, RED "Consumer: %s, failed to open scull_buffer\n" RESET, name);
+		return -1;
 	}
 	sleep(2);
-	char buf[32];
 
-	int done = 0;
-	int consumed;
-	int iters = 0;
-	for(; iters<total_num_item; iters++) {
-
-		consumed = read(scull, &buf, 32);
-		switch (consumed) {
+	for(; i<n_items; i++)
+	{
+		result = read(dev, &buf, BUFFER_SIZE);
+		switch (result)
+		{
 			case -1:
-				perror("Reading by consumer failed: ");
+				fprintf(stderr, RED "Consumer: %s, failed to read\n" RESET, name);
 				break;
 			case 0:
-				fprintf(stderr, RED "Buffer is empty and no producers available\n" RESET);
-				done = 1;
+				fprintf(stderr, RED "Consumer: %s, buffer empty, no producers available\n" RESET, name);
+				flag = true;
 				break;
 			default:
-				printf(BLU "Item %d read by Consumer %s: %s\n" RESET, iters+1, name, buf);
-				;
+				printf(BLU "Consumer: %s, read: %s\n" RESET, name, buf);
+				break;
 		}
 
-        if (done)
+        if(flag)
 			break;
-		sleep(2);
+		//sleep(2);
 	}
-	printf(GRN "Total number of Items read by Consumer %s: %d\n" RESET, name, iters);
 
-    // close the scullbuffer
-    close( scull );
+	printf(GRN "Consumer: %s, total number of items read: %d\n" RESET, name, i);
 
-    // exit
-    exit( 0 );
+    // close the scull_buffer
+    close(dev);
+    exit(0);
 }
