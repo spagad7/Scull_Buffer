@@ -67,10 +67,9 @@ int scull_open(struct inode *inode, struct file *filp)
         dev->items_available = 0;
 	}
 
+	// set pointers
 	if(!dev->rp && !dev->wp)
 		dev->rp = dev->wp = dev->buffer;
-
-    // set read & write pointers
 	dev->buffersize = size;
 	dev->end = dev->buffer + dev->buffersize;
 
@@ -188,8 +187,7 @@ static int spacefree(struct scull_buffer *dev)
 
 
 /*
- * Wait for space for writing; caller must hold device semaphore.
- * On error the semaphore will be released before returning.
+ * scull_getwritespace(): function to check if writespace is available
  */
 static int scull_getwritespace(struct scull_buffer *dev, struct file *filp)
 {
@@ -235,7 +233,9 @@ static int scull_getwritespace(struct scull_buffer *dev, struct file *filp)
 }
 
 
-
+/*
+ * scull_write(): function to write data from user to scull_buffer
+ */
 ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, loff_t *f_pos)
 {
     struct scull_buffer *dev = filp->private_data;
@@ -300,7 +300,6 @@ unsigned int scull_poll(struct file *filp, poll_table *wait)
 
 /*
  * The file operations for the pipe device
- * (some are overlayed with bare scull)
  */
 struct file_operations scull_buffer_fops = {
 	.owner =	THIS_MODULE,
@@ -314,7 +313,7 @@ struct file_operations scull_buffer_fops = {
 
 
 /*
- *Set up a cdev entry.
+ * Set up a cdev entry.
  */
 static void scull_setup_cdev(struct scull_buffer *dev)
 {
@@ -329,8 +328,8 @@ static void scull_setup_cdev(struct scull_buffer *dev)
 
 
 /*
- *Initialize the scull_buffer;
- *return number of scull buffers successfully created
+ * scull_init(): function to initialize scull_module. This function is called
+ * when scull_buffer is loaded using insmod
  */
 int scull_init(void)
 {
@@ -375,8 +374,8 @@ int scull_init(void)
 
 
 /*
- * This is called by cleanup_module or on failure.
- * It is required to never fail, even if nothing was initialized first
+ * scull_cleanup(): This function is called when scull_buffer is unloaded
+ * using rmmod or on failure.
  */
 void scull_cleanup(void)
 {
