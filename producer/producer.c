@@ -39,6 +39,8 @@ int main(int argc, char * argv[])
 		return -1;
 	}
 
+	sleep(1);
+
 	for(; i<n_items; i++) {
 		memset(buf, 0, sizeof(buf));
 		sprintf(buf, "%s %d",color,i+1);
@@ -61,7 +63,6 @@ int main(int argc, char * argv[])
 	}
 
 	printf(GRN "Producer: %s, : total number of items produced: %d\n" RESET, color, i);
-	sleep(2);
     // close the scull_buffer
 	close(dev);
 	exit (0);
